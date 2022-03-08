@@ -6,7 +6,6 @@ from pytz import timezone
 from tagreader.utils import (
     ensure_datetime_with_tz,
     urljoin,
-    is_equinor
 )
 
 is_GITHUBACTION = "GITHUB_ACTION" in os.environ
@@ -42,7 +41,3 @@ def test_urljoin():
     assert urljoin("https://some.where/to/", "/go") == "https://some.where/to/go"
     assert urljoin("https://some.where/to", "go/") == "https://some.where/to/go/"
 
-
-@pytest.mark.skipif(is_GITHUBACTION, reason="Only valid for Windows environments")
-def test_equnor():
-    assert is_equinor() is True

@@ -135,21 +135,3 @@ def add_statoil_root_certificate(noisy=True):
         return False
 
     return True
-
-
-def is_equinor() -> bool:
-    """Determines whether code is running on an Equinor host
-
-    Finds host's domain in Windows Registry at
-    HKLM\\SYSTEM\\ControlSet001\\Services\\Tcpip\\Parameters\\Domain
-
-    Returns:
-        bool: True if Equnor
-    """
-    with winreg.OpenKey(
-        winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\ControlSet001\Services\Tcpip\Parameters"
-    ) as key:
-        domain = winreg.QueryValueEx(key, "Domain")
-    if "statoil" in domain[0]:
-        return True
-    return False
