@@ -9,4 +9,3 @@ except ImportError:
     from datetime import datetime
 
     __version__ = "unknown-" + datetime.today().strftime("%Y%m%d")
-
