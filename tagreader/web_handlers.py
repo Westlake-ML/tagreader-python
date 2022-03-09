@@ -1,6 +1,7 @@
 import re
 import urllib
 import warnings
+from enum import Enum
 from typing import Union
 
 import numpy as np
@@ -9,6 +10,12 @@ import requests
 from requests_kerberos import OPTIONAL, HTTPKerberosAuth
 
 from .utils import ReaderType, logging, urljoin
+
+
+class URLs(Enum):
+    ASPEN = r"http://lchaswpt1ap01p/ProcessExplorer/PROCESSDATA/ATPROCESSDATAREST.DLL"
+    PI = r"TBD"
+
 
 # Requests will use simplejson if it has been installed, so handle both errors here
 try:
@@ -30,7 +37,7 @@ def get_auth_aspen():
 
 
 def list_aspenone_sources(
-    url=r"https://aspenone.api.equinor.com",
+    url=URLs.ASPEN,
     auth=get_auth_aspen(),
     verifySSL=True,
 ):
@@ -51,9 +58,7 @@ def list_aspenone_sources(
         print("Not authorized")
 
 
-def list_piwebapi_sources(
-    url=r"https://piwebapi.equinor.com/piwebapi", auth=get_auth_pi(), verifySSL=True
-):
+def list_piwebapi_sources(url=URLs.PI, auth=get_auth_pi(), verifySSL=True):
     url_ = urljoin(url, "dataservers")
     res = requests.get(url_, auth=auth, verify=verifySSL)
     if res.status_code == 200:
@@ -76,7 +81,7 @@ class AspenHandlerWeb:
     ):
         self._max_rows = options.get("max_rows", 100000)
         if url is None:
-            url = r"https://aspenone.api.equinor.com"
+            url = URLs.ASPEN
         self.base_url = url
         self.datasource = datasource
         self.session = requests.Session()
@@ -523,9 +528,7 @@ class PIHandlerWeb:
         options={},
     ):
         self._max_rows = options.get("max_rows", 10000)
-        if url is None:
-            url = r"https://piwebapi.equinor.com/piwebapi"
-        self.base_url = url
+        self.base_url = url or URLs.PI
         self.datasource = datasource
         self.session = requests.Session()
         self.session.verify = verifySSL if verifySSL is not None else True

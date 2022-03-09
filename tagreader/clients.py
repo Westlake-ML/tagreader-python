@@ -26,6 +26,7 @@ from .web_handlers import (
     list_aspenone_sources,
     get_auth_pi,
     get_auth_aspen,
+    URLs,
 )
 
 from typing import Union
@@ -46,7 +47,7 @@ def list_sources(imstype, url=None, auth=None, verifySSL=None):
         return list_aspen_sources()
     elif imstype.lower() == "piwebapi":
         if url is None:
-            url = r"https://piwebapi.equinor.com/piwebapi"
+            url = URLs.PI
         if auth is None:
             auth = get_auth_pi()
         if verifySSL is None:
@@ -54,7 +55,7 @@ def list_sources(imstype, url=None, auth=None, verifySSL=None):
         return list_piwebapi_sources(url=url, auth=auth, verifySSL=verifySSL)
     elif imstype.lower() == "aspenone":
         if url is None:
-            url = r"https://aspenone.api.equinor.com"
+            url = URLs.ASPEN
         if auth is None:
             auth = get_auth_aspen()
         if verifySSL is None:
