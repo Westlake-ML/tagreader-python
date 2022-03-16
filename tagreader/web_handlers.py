@@ -1,7 +1,6 @@
 import re
 import urllib
 import warnings
-from enum import Enum
 from typing import Union
 
 import numpy as np
@@ -12,9 +11,9 @@ from requests_kerberos import OPTIONAL, HTTPKerberosAuth
 from .utils import ReaderType, logging, urljoin
 
 
-class URLs(Enum):
+class URLs:
     ASPEN = r"http://lchaswpt1ap01p/ProcessExplorer/PROCESSDATA/ATPROCESSDATAREST.DLL"
-    PI = r"TBD"
+    PI = NotImplementedError("No PI URL provided in URLs class.")
 
 
 # Requests will use simplejson if it has been installed, so handle both errors here
