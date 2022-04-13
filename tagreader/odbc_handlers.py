@@ -3,13 +3,15 @@ import pyodbc
 import pandas as pd
 import numpy as np
 import warnings
-from typing import Union
-from .utils import logging, winreg, find_registry_key, ReaderType
+from typing import List, Union
+from .utils import logging, winreg, find_registry_key, list_subkeys, ReaderType
 
 logging.basicConfig(
     format=" %(asctime)s %(levelname)s: %(message)s", level=logging.INFO
 )
 
+ADSA_REGISTRY_PATH = r"Software\AspenTech\ADSA\Caches\\"
+server_registry_path = lambda server: ADSA_REGISTRY_PATH + server + r"\\" + os.getlogin()
 
 def list_aspen_servers():
     warnings.warn(
@@ -30,18 +32,30 @@ def list_pi_servers():
     )
     return list_pi_sources()
 
+def list_adsa_servers() -> List[str]:
+    try:
+        adsa_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, ADSA_REGISTRY_PATH)
+    except:
+        return []
+    return list_subkeys(adsa_key)
 
-def list_aspen_sources():
-    source_list = []
+def list_aspen_sources(server: str = None) -> List[str]:
+    available_servers = list_adsa_servers()
+
+    if server is None:
+        if available_servers:
+            server = available_servers[0]
+        else:
+            print("No ADSA servers available.")
+            return []
+    else:
+        assert server in available_servers
+    
     reg_adsa = winreg.OpenKey(
         winreg.HKEY_CURRENT_USER,
-        r"Software\AspenTech\ADSA\Caches\AspenADSA\\" + os.getlogin(),
+        server_registry_path(server),
     )
-    num_sources, _, _ = winreg.QueryInfoKey(reg_adsa)
-    for i in range(0, num_sources):
-        source_list.append(winreg.EnumKey(reg_adsa, i))
-    return source_list
-
+    return list_subkeys(reg_adsa)
 
 def list_pi_sources():
     source_list = []
