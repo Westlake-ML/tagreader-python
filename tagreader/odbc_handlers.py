@@ -13,24 +13,6 @@ logging.basicConfig(
 ADSA_REGISTRY_PATH = r"Software\AspenTech\ADSA\Caches\\"
 server_registry_path = lambda server: ADSA_REGISTRY_PATH + server + r"\\" + os.getlogin()
 
-def list_aspen_servers():
-    warnings.warn(
-        (
-            "This function is deprecated and will be removed."
-            "Please call 'list_sources(\"aspen\")' instead"
-        )
-    )
-    return list_aspen_sources()
-
-
-def list_pi_servers():
-    warnings.warn(
-        (
-            "This function is deprecated and will be removed."
-            "Please call 'list_sources(\"pi\")' instead"
-        )
-    )
-    return list_pi_sources()
 
 def list_adsa_servers() -> List[str]:
     try:
