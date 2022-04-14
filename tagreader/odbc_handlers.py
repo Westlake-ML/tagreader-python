@@ -3,7 +3,7 @@ import pyodbc
 import pandas as pd
 import numpy as np
 import warnings
-from typing import List, Union
+from typing import List, Optional, Union
 from .utils import logging, winreg, find_registry_key, list_subkeys, ReaderType
 
 logging.basicConfig(
@@ -39,18 +39,23 @@ def list_adsa_servers() -> List[str]:
         return []
     return list_subkeys(adsa_key)
 
-def list_aspen_sources(server: str = None) -> List[str]:
+def validated_server(server: Optional[str] = None) -> str:
+    """
+    Validates the server, if provided, or returns the first available ADSA server.
+    """
     available_servers = list_adsa_servers()
 
     if server is None:
         if available_servers:
-            server = available_servers[0]
+            return available_servers[0]
         else:
-            print("No ADSA servers available.")
-            return []
+            raise FileNotFoundError("No available ADSA servers")
     else:
         assert server in available_servers
-    
+        return server
+
+def list_aspen_sources(server: str = None) -> List[str]:
+    server = validated_server(server)    
     reg_adsa = winreg.OpenKey(
         winreg.HKEY_CURRENT_USER,
         server_registry_path(server),

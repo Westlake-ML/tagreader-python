@@ -18,6 +18,8 @@ from .odbc_handlers import (
     AspenHandlerODBC,
     list_pi_sources,
     list_aspen_sources,
+    server_registry_path,
+    validated_server,
 )
 from .web_handlers import (
     PIHandlerWeb,
@@ -36,7 +38,7 @@ logging.basicConfig(
 )
 
 
-def list_sources(imstype, url=None, auth=None, verifySSL=None):
+def list_sources(imstype, url=None, auth=None, verifySSL=None, server=None):
     accepted_values = ["pi", "aspen", "ip21", "piwebapi", "aspenone"]
     if not imstype or imstype.lower() not in accepted_values:
         raise ValueError(f"`imstype` must be one of {accepted_values}")
@@ -44,7 +46,7 @@ def list_sources(imstype, url=None, auth=None, verifySSL=None):
     if imstype.lower() == "pi":
         return list_pi_sources()
     elif imstype.lower() in ["aspen", "ip21"]:
-        return list_aspen_sources()
+        return list_aspen_sources(server=server)
     elif imstype.lower() == "piwebapi":
         if url is None:
             url = URLs.PI
@@ -101,7 +103,7 @@ def get_next_timeslice(start_time, stop_time, ts, max_steps=None):
     return start_time, calc_stop_time
 
 
-def get_server_address_aspen(datasource):
+def get_server_address_aspen(datasource, server=None):
     """Data sources are listed under
     HKEY_CURRENT_USER\\Software\\AspenTech\\ADSA\\Caches\\AspenADSA\\username.
     For each data source there are multiple keys with Host entries. We start by
@@ -121,10 +123,10 @@ def get_server_address_aspen(datasource):
     _, aspen_UUID = find_registry_key_from_name(
         regkey_implemented_categories, "Aspen SQLplus services"
     )
-
+    server = validated_server(server)
     reg_adsa = winreg.OpenKey(
         winreg.HKEY_CURRENT_USER,
-        r"Software\AspenTech\ADSA\Caches\AspenADSA\\" + os.getlogin(),
+        server_registry_path(server),
     )
 
     try:
@@ -169,6 +171,7 @@ def get_server_address_pi(datasource):
 def get_handler(
     imstype,
     datasource,
+    server=None,
     url=None,
     host=None,
     port=None,
@@ -206,7 +209,7 @@ def get_handler(
                 "Either switch to Web API ('aspenone') or install appropriate driver."
             )
         if host is None:
-            hostport = get_server_address_aspen(datasource)
+            hostport = get_server_address_aspen(datasource, server=server)
             if not hostport:
                 raise ValueError(
                     f"Unable to locate data source '{datasource}'."
@@ -240,6 +243,7 @@ class IMSClient:
     def __init__(
         self,
         datasource,
+        server=None,
         imstype=None,
         tz="Europe/Oslo",
         url=None,
@@ -255,6 +259,7 @@ class IMSClient:
         self.handler = get_handler(
             imstype,
             datasource,
+            server=server,
             url=url,
             host=host,
             port=port,
