@@ -4,6 +4,8 @@ import warnings
 import winreg
 import pandas as pd
 
+from typing import List
+from winreg import HKEYType
 
 def find_registry_key(base_key, search_key_name):
     search_key_name = search_key_name.lower()
@@ -39,6 +41,12 @@ def find_registry_key_from_name(base_key, search_key_name):
             logging.error("{}: {}".format(i, err))
     return key, key_string
 
+def list_subkeys(key: HKEYType) -> List[str]:
+    count, *_ = winreg.QueryInfoKey(key)
+    subkeys = []
+    for i in range(count):
+        subkeys.append(winreg.EnumKey(key, i))
+    return subkeys
 
 def ensure_datetime_with_tz(date_stamp, tz="Europe/Oslo"):
     if isinstance(date_stamp, str):
