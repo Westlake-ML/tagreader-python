@@ -1,5 +1,6 @@
 from .clients import IMSClient, list_sources  # noqa: F401
 from .odbc_handlers import list_adsa_servers  # noqa: F401
+from .notebook_client import NotebookClient  # noqa: F401
 from .utils import ReaderType, add_statoil_root_certificate  # noqa: F401
 
 try:
