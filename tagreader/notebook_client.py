@@ -1,8 +1,7 @@
 import ipywidgets as widgets
 from IPython.display import display
 
-from .clients import IMSClient, list_sources
-from.odbc_handlers import list_adsa_servers
+from .clients import IMSClient
 from .widgets import IMSWidget, ServerWidget, SourcesWidget
 
 class NotebookClient(IMSClient):

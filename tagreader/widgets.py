@@ -1,4 +1,3 @@
-import ipywidgets as widgets
 from ipywidgets import Dropdown
 
 from .clients import list_sources
