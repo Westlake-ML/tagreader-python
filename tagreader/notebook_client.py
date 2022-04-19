@@ -22,18 +22,8 @@ class NotebookClient(IMSClient):
             self._ims_widget,
             self._server_widget,
             self._sources_widget,
-            self._connect_btn
+            self._connect_btn,
         )
-
-    @output.capture()
-    def _connect(self, _):
-        super().__init__(
-            datasource=self.source,
-            server=self.server,
-            url=self.server,
-            imstype=self.imstype,
-        )
-        self.connect()
 
     @property
     def imstype(self):
@@ -47,16 +37,33 @@ class NotebookClient(IMSClient):
     def source(self):
         return self._sources_widget.value
 
-    def _update_server(self, _):
+    def _update_server(self, ims_change):
         """
         Callback when new IMS type is selected.
         """
-        ims = self._ims_widget.value
-        self._server_widget.update(ims)
-        self._sources_widget.update(ims, self.server)
+
+        new_ims = ims_change["new"]
+        self._server_widget.update(new_ims)
     
-    def _update_sources(self, _):
+    def _update_sources(self, server_change):
         """
         Callback when new server is selected.
         """
-        self._sources_widget.update(self.imstype, server=self.server)
+
+        new_server = server_change["new"]
+        self._sources_widget.update(self.imstype, new_server)
+    
+    def _connect(self, _):
+        """
+        Callback when 'Connect' button is pressed.
+        """
+
+        # Server widget is dual-purpose as 'server' and as 'url'.
+        # Downstream handlers will sort out which paramaters they need based on imstype.
+        super().__init__(
+            datasource=self.source,
+            server=self.server,
+            url=self.server,
+            imstype=self.imstype,
+        )
+        self.connect()
