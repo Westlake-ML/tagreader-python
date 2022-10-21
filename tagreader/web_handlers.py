@@ -8,6 +8,7 @@ import pandas as pd
 import requests
 from requests_kerberos import OPTIONAL, HTTPKerberosAuth
 
+from typing import List
 from .utils import ReaderType, logging, urljoin
 
 
@@ -15,6 +16,17 @@ class URLs:
     ASPEN = r"http://lchaswpt1ap01p/ProcessExplorer/PROCESSDATA/ATPROCESSDATAREST.DLL"
     PI = NotImplementedError("No PI URL provided in URLs class.")
 
+    @staticmethod
+    def all() -> List[str]:
+        return [getattr(URLs, attr) for attr in dir(URLs) if URLs._is_url(attr)]
+
+    @staticmethod
+    def _is_url(attr: str):
+        return all([
+            not attr.startswith("_"),
+            not callable(getattr(URLs, attr)),
+            isinstance(getattr(URLs, attr), str),
+        ])
 
 # Requests will use simplejson if it has been installed, so handle both errors here
 try:
